@@ -1,4 +1,7 @@
 from transformers import pipeline
+from flask import Flask, request, jsonify
+
+app = Flask(__name__)
 
 summarizer = pipeline('summarization')
 
@@ -43,11 +46,27 @@ def split_text(text, max_length):
     chunks.append(chunk.strip())
     return chunks
 
-max_chunk_length = 1024
-article_chunks = split_text(article, max_chunk_length)
+def summarize_text(text):
+    max_chunk_length = 1024
+    article_chunks = split_text(text, max_chunk_length)
 
-summaries = [summarizer(chunk, max_length=100, min_length=10, do_sample=False)[0]['summary_text'] for chunk in article_chunks]
+    summaries = [summarizer(chunk, max_length=70, min_length=10, do_sample=False)[0]['summary_text'] for chunk in article_chunks]
 
-final_summary = " ".join(summaries)
+    final_summary = " ".join(summaries)
 
-print(final_summary)
+    return final_summary
+
+
+@app.route('/summarize', methods=['POST'])
+def home():
+
+    data = request.get_json()
+    
+    if 'text' not in data:
+        return jsonify({'error': 'Text must be a non-empty string'}), 400
+
+    text_summary = summarize_text(data['text'])
+    return text_summary
+
+if __name__ == '__main__':
+    app.run(debug=True)

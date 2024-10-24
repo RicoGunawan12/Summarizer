@@ -61,12 +61,17 @@ def summarize_text(text):
 def home():
 
     data = request.get_json()
-    
+
     if 'text' not in data:
         return jsonify({'error': 'Text must be a non-empty string'}), 400
 
     text_summary = summarize_text(data['text'])
     return text_summary
+
+@app.route('/test', methods=['GET'])
+def test():
+    return "Server is up and running!"
+
 
 if __name__ == '__main__':
     app.run(debug=True)

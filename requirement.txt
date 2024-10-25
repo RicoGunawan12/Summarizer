@@ -1,3 +1,4 @@
 flask
-transformer
+flask-cors
+transformers
 torch
